@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-spa
+  namespace: github-lab
+  labels:
+    app: react-spa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: react-spa
+  template:
+    metadata:
+      labels:
+        app: react-spa
+    spec:
+      containers:
+      - name: react-spa
+        image: 767397705569.dkr.ecr.us-east-1.amazonaws.com/react-spa:latest
+        ports:
+        - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: react-spa
+  namespace: github-lab
+spec:
+  selector:
+    app: react-spa
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: react-spa
+  namespace: github-lab
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: react.kapil-lab.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: react-spa
+            port:
+              number: 80
+
